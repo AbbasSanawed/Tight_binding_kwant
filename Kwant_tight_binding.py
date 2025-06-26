@@ -48,8 +48,8 @@ if Fermi_energy_eV is None or np.isnan(Fermi_energy_eV):
     logging.error("Fermi_energy_eV is not valid (None or NaN). Please provide a valid Fermi energy.")
     raise ValueError("Invalid Fermi_energy_eV.")
 else:
-    FERMI_ENERGY_eV = Fermi_energy_eV
-    logging.info(f"Using strictly defined Fermi Energy: {FERMI_ENERGY_eV:.4f} eV")
+    fermi_energy_eV = Fermi_energy_eV
+    logging.info(f"Using strictly defined Fermi Energy: {fermi_energy_eV:.4f} eV")
 
 temp_K = 1e-5  # temp for finite-T conductance calculation (Kelvin)
 
@@ -263,7 +263,7 @@ def main():
     energy_max_ev = 5.0
     energies_ev = np.linspace(energy_min_ev, energy_max_ev, 500)
 
-    logging.info(f"Calculating T(E), DOS(E) for E in [{energy_min_ev:.2f}, {energy_max_ev:.2f}] eV. E_F={FERMI_ENERGY_eV:.4f} eV.")
+    logging.info(f"Calculating T(E), DOS(E) for E in [{energy_min_ev:.2f}, {energy_max_ev:.2f}] eV. E_F={fermi_energy_eV:.4f} eV.")
 
     transmission_values = []
     for energy in energies_ev:
@@ -281,7 +281,7 @@ def main():
     )
 
     G_at_Ef, G_finite_temp_at_Ef = compute_conductance_metrics(
-        FERMI_ENERGY_eV, temp_K, energies_ev, transmission_values, 
+        fermi_energy_eV, temp_K, energies_ev, transmission_values, 
         G0, energy_min_ev, energy_max_ev,
         num_integration_intervals=500 
     )
@@ -289,23 +289,23 @@ def main():
         G_at_Ef, G_finite_temp_at_Ef = np.nan, np.nan
         logging.info("Skipping conductance value calculation: Less than 2 leads.")
 
-    logging.info(f"G(T=0K, E_F={FERMI_ENERGY_eV:.4f}eV): {G_at_Ef:.4e} S")
-    logging.info(f"G(T={temp_K}K, E_F={FERMI_ENERGY_eV:.4f}eV): {G_finite_temp_at_Ef:.4e} S")
+    logging.info(f"G(T=0K, E_F={fermi_energy_eV:.4f}eV): {G_at_Ef:.4e} S")
+    logging.info(f"G(T={temp_K}K, E_F={fermi_energy_eV:.4f}eV): {G_finite_temp_at_Ef:.4e} S")
 
     fig, axs = plt.subplots(3, 1, figsize=(10, 9), sharex=True) 
-    plot_title_suffix = f"(Li Chain '2s', $E_F={FERMI_ENERGY_eV:.4f}$ eV)"
+    plot_title_suffix = f"(Li Chain '2s', $E_F={fermi_energy_eV:.4f}$ eV)"
     
     axs[0].plot(energies_ev, transmission_values, color='dodgerblue')
     axs[0].set_title(f'Transmission T(E) {plot_title_suffix}')
     axs[0].set_ylabel('T(E)')
-    axs[0].axvline(FERMI_ENERGY_eV, color='red', linestyle='--', label='$E_F$')
+    axs[0].axvline(fermi_energy_eV, color='red', linestyle='--', label='$E_F$')
     axs[0].legend()
     axs[0].grid(True, linestyle=':', alpha=0.7)
     
     axs[1].plot(energies_ev, dos_values, color='forestgreen')
     axs[1].set_title(f'DOS (Central Region) {plot_title_suffix}')
     axs[1].set_ylabel('DOS (states/eV)')
-    axs[1].axvline(FERMI_ENERGY_eV, color='red', linestyle='--', label='$E_F$')
+    axs[1].axvline(fermi_energy_eV, color='red', linestyle='--', label='$E_F$')
     axs[1].legend()
     axs[1].grid(True, linestyle=':', alpha=0.7)
 
@@ -313,7 +313,7 @@ def main():
     axs[2].plot(energies_ev, conductance_vs_energy, color='darkorange', label='G(E) = $G_0 \\times T(E)$')
     axs[2].set_title(f'Conductance G(E) {plot_title_suffix}')
     axs[2].set_ylabel('Conductance (S)')
-    axs[2].axvline(FERMI_ENERGY_eV, color='red', linestyle='--', label='$E_F$')
+    axs[2].axvline(fermi_energy_eV, color='red', linestyle='--', label='$E_F$')
     
     if not np.isnan(G_at_Ef):
         axs[2].axhline(G_at_Ef, color='blueviolet', linestyle=':', 
